@@ -1,0 +1,26 @@
+name: matrix-test
+on: [push, pull_request]
+jobs:
+  list-kernels:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: set-matrix
+        run: echo "::set-output name=matrix::$(ls kernels/ | jq -R -s -c 'split("\n")[:-1]')"
+  build-kernel:
+    needs: list-kernels
+    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            kernel: ${{ fromJson(needs.list-kernels.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: DEBIAN_FRONTEND=noninteractive sudo apt-get -y install pv cgpt libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf
+      - run: |
+          cd kernels/${{ matrix.kernel }}
+          make -j$(nproc) O=out chromeos_defconfig
+          make -j$(nproc) O=out
+  
