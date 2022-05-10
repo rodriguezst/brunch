@@ -23,8 +23,9 @@ jobs:
           cd kernels/${{ matrix.kernel }}
           echo "make -j$(nproc) O=out chromeos_defconfig"
           echo "make -j$(nproc) O=out"
-          mkdir -p out
-          echo "${{ matrix.kernel }}" > out/${{ matrix.kernel }}
+          mkdir -p out/sample_dir
+          echo "${{ matrix.kernel }}" > out/file1-${{ matrix.kernel }}
+          echo "${{ matrix.kernel }}" > out/sample_dir/file2-${{ matrix.kernel }}
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.kernel }}
@@ -40,4 +41,12 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
         working-directory: artifacts
+      - name: Copy out directories to their kernel dir
+        run: |
+          cd artifacts
+          for kernel in */
+          do
+            cp -rf $kernel ../kernels/$kernel/out
+            ls ../kernels/$kernel/out
+          done
   
