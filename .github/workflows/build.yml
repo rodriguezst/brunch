@@ -49,4 +49,18 @@ jobs:
             cp -rf $kernel ../kernels/$kernel/out
             ls ../kernels/$kernel/out
           done
-  
+      - name: Download ChromeOS Recovery
+        run: |
+          RECOVERY_FILE=chromeos_14526.89.0_rammus_recovery_stable-channel_mp-v2.bin
+          curl -L https://dl.google.com/dl/edgedl/chromeos/recovery/$RECOVERY_FILE.zip -o ./chromeos_recovery.zip
+          unzip chromeos_recovery.zip && rm -rf chromeos_recovery.zip
+          echo "RECOVERY_FILE=$RECOVERY_FILE" >> $GITHUB_ENV
+      - name: Run build.sh script
+        run: sudo bash build.sh ${{ env.RECOVERY_FILE }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: brunch-artifact
+          path: out/brunch_*.tar.gz
+          if-no-files-found: error
