@@ -21,11 +21,8 @@ jobs:
         run: DEBIAN_FRONTEND=noninteractive sudo apt-get -y install pv cgpt libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf
       - run: |
           cd kernels/${{ matrix.kernel }}
-          echo "make -j$(nproc) O=out chromeos_defconfig"
-          echo "make -j$(nproc) O=out"
-          mkdir -p out/sample_dir
-          echo "${{ matrix.kernel }}" > out/file1-${{ matrix.kernel }}
-          echo "${{ matrix.kernel }}" > out/sample_dir/file2-${{ matrix.kernel }}
+          make -j$(nproc) O=out chromeos_defconfig
+          make -j$(nproc) O=out
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.kernel }}
