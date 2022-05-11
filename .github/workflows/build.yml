@@ -23,28 +23,23 @@ jobs:
           cd kernels/${{ matrix.kernel }}
           make -j$(nproc) O=out chromeos_defconfig
           make -j$(nproc) O=out
+      - name: Compress output files
+        run: tar zcvf artifacts-${{ matrix.kernel }}.tar.gz kernels/${{ matrix.kernel }}/out
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.kernel }}
-          path: kernels/${{ matrix.kernel }}/out
+          name: artifacts-${{ matrix.kernel }}
+          path: artifacts-${{ matrix.kernel }}.tar.gz
   check-build:
     needs: build-kernel
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v3
-        with:
-          path: artifacts
-      - name: Display structure of downloaded files
-        run: ls -R
-        working-directory: artifacts
       - name: Copy out directories to their kernel dir
         run: |
-          cd artifacts
-          for kernel in */
+          for file in artifacts-*.tar.gz
           do
-            cp -rf $kernel ../kernels/$kernel/out
-            ls ../kernels/$kernel/out
+            tar zxvf $file
           done
       - name: Download ChromeOS Recovery
         run: |
