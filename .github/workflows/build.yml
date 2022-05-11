@@ -40,6 +40,7 @@ jobs:
           for file in artifacts-*/artifacts-*.tar.gz
           do
             tar zxvf $file
+            rm -rf $file
           done
       - name: Install dependencies
         run: sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get -y install pv cgpt
