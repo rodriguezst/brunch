@@ -34,8 +34,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Workaround to provide additional free space
+        run: |
+          df -h
+          # https://github.com/actions/virtual-environments/issues/2840
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          sudo rm -rf /usr/local/lib/android
+          df -h
       - uses: actions/download-artifact@v3
-      - name: Copy out directories to their kernel dir
+      - name: Copy "out" directories to their kernel dirs
         run: |
           for file in artifacts-*/artifacts-*.tar.gz
           do
