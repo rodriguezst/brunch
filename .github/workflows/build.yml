@@ -41,6 +41,8 @@ jobs:
           do
             tar zxvf $file
           done
+      - name: Install dependencies
+        run: sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get -y install pv cgpt
       - name: Download ChromeOS Recovery
         run: |
           RECOVERY_FILE=chromeos_14526.89.0_rammus_recovery_stable-channel_mp-v2.bin
