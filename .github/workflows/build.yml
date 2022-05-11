@@ -37,7 +37,7 @@ jobs:
       - uses: actions/download-artifact@v3
       - name: Copy out directories to their kernel dir
         run: |
-          for file in artifacts-*.tar.gz
+          for file in artifacts-*/artifacts-*.tar.gz
           do
             tar zxvf $file
           done
