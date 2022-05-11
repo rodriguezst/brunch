@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: DEBIAN_FRONTEND=noninteractive sudo apt-get -y install pv cgpt libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf
+        run: sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get -y install pv cgpt libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf
       - run: |
           cd kernels/${{ matrix.kernel }}
           make -j$(nproc) O=out chromeos_defconfig
