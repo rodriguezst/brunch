@@ -1,4 +1,4 @@
-name: matrix-test
+name: Build Brunch using Github Actions
 on: [push, pull_request]
 jobs:
   list-kernels:
@@ -95,12 +95,17 @@ jobs:
           BUILD_TAG=$(echo $BRUNCH_FILE | grep -o -P '(?<=brunch_).*(?=.tar.gz)')
           echo "BUILD_TAG=$BUILD_TAG" >> $GITHUB_ENV
           echo "Detected build tag $BUILD_TAG"
-        
-      - name: Create a release
+      - name: Calculate (and echo) checksum of generated file
+        run: |
+          sha256sum ${{ env.BRUNCH_FILE }} > ${{ env.BRUNCH_FILE }}.sha256
+          echo "Generated SHA256SUM:" && cat ${{ env.BRUNCH_FILE }}.sha256
+      - name: Create a release and upload artifacts as assets
+        if: ${{ github.event_name == 'push' }} # Do not create a release for pull-requests, only pushes
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "${{ env.BRUNCH_FILE }}"
+          artifacts: "${{ env.BRUNCH_FILE }},${{ env.BRUNCH_FILE }}.sha256"
           token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: true
+          prerelease: true # When reaching releases/latest API endpoing prereleases are ignored
           tag: "${{ env.BUILD_TAG }}"
           name: "Brunch ${{ env.BUILD_TAG }}"
+          body: "Built branch ${{ github.ref_name }} on commit ${{ github.sha }}. Full compilation log at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
