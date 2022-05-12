@@ -108,4 +108,5 @@ jobs:
           prerelease: true # When reaching releases/latest API endpoing prereleases are ignored
           tag: "${{ env.BUILD_TAG }}"
           name: "Brunch ${{ env.BUILD_TAG }}"
-          body: "Built branch ${{ github.ref_name }} on commit ${{ github.sha }}. Full compilation log at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          commit: ${{ github.ref_name }}
+          body: "Built branch `${{ github.ref_name }}` on commit ${{ github.sha }}. Full compilation log at https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}."
