@@ -40,6 +40,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Apply Chuwi Hi12 specific modifications
+        run: |
+          # Goodix touchscreen driver from kernel 5.17
+          rm -rf external-drivers/goodix/goodix.c
+          curl -L "https://github.com/rodriguezst/goodix-backport/raw/master/Makefile" -o external-drivers/goodix/Makefile
+          curl -L "https://github.com/rodriguezst/goodix-backport/raw/master/goodix_ts.c" -o external-drivers/goodix/goodix_ts.c
+          curl -L "https://github.com/rodriguezst/goodix-backport/raw/master/goodix.h" -o external-drivers/goodix/goodix.h
+          curl -L "https://github.com/rodriguezst/goodix-backport/raw/master/goodix_fwupload.c" -o external-drivers/goodix/goodix_fwupload.c
+          # alsa-ucm-conf from v1.2.1
+          rm -rf alsa-ucm-conf
+          curl -L "https://github.com/alsa-project/alsa-ucm-conf/archive/refs/tags/v1.2.1.zip" -o alsa-ucm-conf.zip
+          unzip alsa-ucm-conf.zip "*/ucm*"
+          mv alsa-ucm-conf-*/ alsa-ucm-conf
       - name: Workaround to provide additional free space to the compilation VM
         run: |
           df -h
@@ -92,7 +105,7 @@ jobs:
           BRUNCH_FILE=$(find artifacts/ -name 'brunch_*.tar.gz')
           echo "BRUNCH_FILE=$BRUNCH_FILE" >> $GITHUB_ENV
           echo "Found brunch tar.gz file at: $BRUNCH_FILE"
-          BUILD_TAG=$(echo $BRUNCH_FILE | grep -o -P '(?<=brunch_).*(?=.tar.gz)')
+          BUILD_TAG=$(echo $BRUNCH_FILE | grep -o -P '(?<=brunch_).*(?=.tar.gz)')-HI12
           echo "BUILD_TAG=$BUILD_TAG" >> $GITHUB_ENV
           echo "Detected build tag $BUILD_TAG"
       - name: Calculate (and echo) checksum of generated file
