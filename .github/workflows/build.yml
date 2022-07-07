@@ -51,8 +51,6 @@ jobs:
           rm -f /tmp/kernels-source.tar.gz
       - name: Build kernels
         run: ./build_kernels.sh ${{ matrix.kernel }}
-      - name: Clear keys
-        run: rm -r /persist/keys
       - name: Compress built kernel
         run: tar zcf /tmp/built-kernel-${{ matrix.kernel }}.tar.gz kernels/${{ matrix.kernel }}
       - name: Upload kernels source
