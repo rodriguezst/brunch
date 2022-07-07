@@ -1,8 +1,6 @@
 name: Build Brunch using Github Actions
 on:
   push:
-    branches:
-      - 'r102'
     paths-ignore:
       - 'README.md'
 concurrency:
@@ -79,6 +77,19 @@ jobs:
     steps:
       - name: Checkout Brunch source code
         uses: actions/checkout@v2
+      - name: Apply Chuwi Hi12 specific modifications
+        run: |
+          # Goodix touchscreen driver from kernel 5.17
+          rm -rf external-drivers/goodix/goodix.c
+          curl -L "https://github.com/rodriguezst/goodix-backport/raw/master/Makefile" -o external-drivers/goodix/Makefile
+          curl -L "https://github.com/rodriguezst/goodix-backport/raw/master/goodix_ts.c" -o external-drivers/goodix/goodix_ts.c
+          curl -L "https://github.com/rodriguezst/goodix-backport/raw/master/goodix.h" -o external-drivers/goodix/goodix.h
+          curl -L "https://github.com/rodriguezst/goodix-backport/raw/master/goodix_fwupload.c" -o external-drivers/goodix/goodix_fwupload.c
+          # alsa-ucm-conf from v1.2.1
+          rm -rf alsa-ucm-conf
+          curl -L "https://github.com/alsa-project/alsa-ucm-conf/archive/refs/tags/v1.2.1.zip" -o alsa-ucm-conf.zip
+          unzip alsa-ucm-conf.zip "*/ucm*"
+          mv alsa-ucm-conf-*/ alsa-ucm-conf
       - name: Download built kernels
         uses: actions/download-artifact@v2
         with:
@@ -128,7 +139,7 @@ jobs:
           mv "brunch_${RELEASE_VERSION}_${RELEASE_DATE}.tar.gz" "brunch_${RELEASE_VERSION}_${RELEASE_VERSION_TYPE}_${RELEASE_DATE}.tar.gz"
           echo "Brunch release renamed from brunch_${RELEASE_VERSION}_${RELEASE_DATE}.tar.gz to brunch_${RELEASE_VERSION}_${RELEASE_VERSION_TYPE}_${RELEASE_DATE}.tar.gz"
           echo "RELEASE_FILE=brunch_${RELEASE_VERSION}_${RELEASE_VERSION_TYPE}_${RELEASE_DATE}.tar.gz" >> $GITHUB_ENV
-          echo "RELEASE_TAG=${RELEASE_VERSION}-${RELEASE_VERSION_TYPE}-${RELEASE_DATE}" >> $GITHUB_ENV
+          echo "RELEASE_TAG=${RELEASE_VERSION}-${RELEASE_VERSION_TYPE}-${RELEASE_DATE}-HI12" >> $GITHUB_ENV
           echo "RELEASE_NAME=Brunch ${RELEASE_VERSION} ${RELEASE_VERSION_TYPE} ${RELEASE_DATE}" >> $GITHUB_ENV          
       - name: Create a release and upload artifacts as assets
         uses: ncipollo/release-action@v1
